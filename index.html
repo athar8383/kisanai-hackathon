@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KisanAI — Elite Command Center</title>
+    
+    <!-- PWA Settings -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#07090e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon.svg">
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div id="app" class="app-container">
+        
+        <!-- PRINT HEADER (Hidden on Screen) -->
+        <div class="print-only report-header">
+            <div class="logo">KisanAI <span>Command Center</span></div>
+            <p>Automated Agricultural Intelligence Report</p>
+            <div id="print-timestamp" class="timestamp"></div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 1: HOME (Ingestion Hub) -->
+        <!-- ========================================== -->
+        <div id="screen-home" class="screen active">
+            <header>
+                <div class="logo">KisanAI <span>Command</span></div>
+                <div class="selection-counter" id="selection-counter-home">Selected evidence sources: 0 of 10</div>
+            </header>
+            <div class="content no-print">
+                <!-- Welcome Hero Card -->
+                <div class="glass-card welcome-hero" style="border-left: 4px solid var(--primary); padding: 14px; border-radius: 16px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(7, 9, 14, 0.5) 100%);">
+                    <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="sparkles" style="width: 14px; height: 14px; color: var(--primary);"></i> Welcome, Commander
+                    </h3>
+                    <p style="font-size: 0.65rem; color: var(--text-dim); line-height: 1.4; margin-top: 6px;">
+                        Build your crop evidence pool below by selecting reports from national public-sector databases or adding custom links.
+                    </p>
+                </div>
+
+                <!-- Category B: Real-World Public Agriculture Libraries -->
+                <div class="glass-card" style="border-left: 4px solid var(--accent); padding: 14px; border-radius: 16px; display: flex; flex-direction: column;">
+                    <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="database" style="width:14px; height:14px;"></i> A. Public Agricultural Libraries
+                    </div>
+                    <p style="font-size: 0.65rem; color: var(--text-dim); margin-bottom: 10px; line-height: 1.4;">
+                        Select and preview official publications, agricultural censuses, and technical diagnostic manuals.
+                    </p>
+                    
+                    <!-- Organization Filters -->
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;" id="org-filters">
+                        <button class="mini-btn active" id="filter-all" onclick="filterOrg('ALL')" style="padding: 4px 8px; font-size: 0.6rem;">ALL</button>
+                        <button class="mini-btn" id="filter-fao" onclick="filterOrg('FAO')" style="padding: 4px 8px; font-size: 0.6rem;">FAO Pak</button>
+                        <button class="mini-btn" id="filter-wb" onclick="filterOrg('WB')" style="padding: 4px 8px; font-size: 0.6rem;">World Bank</button>
+                        <button class="mini-btn" id="filter-pbs" onclick="filterOrg('PBS')" style="padding: 4px 8px; font-size: 0.6rem;">PBS Stats</button>
+                        <button class="mini-btn" id="filter-parc" onclick="filterOrg('PARC')" style="padding: 4px 8px; font-size: 0.6rem;">PARC</button>
+                        <button class="mini-btn" id="filter-cabi" onclick="filterOrg('CABI')" style="padding: 4px 8px; font-size: 0.6rem;">CABI Health</button>
+                    </div>
+
+                    <!-- Libraries Scroll list -->
+                    <div id="libraries-explorer-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; padding-right: 4px;">
+                        <!-- Dynamically populated from JS -->
+                    </div>
+                </div>
+
+                <!-- Category C: Custom Ingestion -->
+                <div class="glass-card" style="border-left: 4px solid var(--warning); padding: 14px; border-radius: 16px;">
+                    <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--warning); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="plus-circle" style="width:14px; height:14px;"></i> B. Custom Ingestion
+                    </div>
+                    <p style="font-size: 0.65rem; color: var(--text-dim); margin-bottom: 10px; line-height: 1.4;">
+                        Upload local field logs, agronomist web reports, or green-boll scans.
+                    </p>
+                    <div class="intake-actions" style="display: flex; gap: 8px;">
+                        <button class="btn icon-btn outline-btn flex-1" onclick="document.getElementById('file-input').click()" style="padding: 8px 12px; font-size: 0.7rem; min-height:44px;">
+                            <i data-lucide="file-up" style="width: 12px;"></i> Upload File
+                        </button>
+                        <button class="btn icon-btn outline-btn flex-1" onclick="showIntakeModal('url')" style="padding: 8px 12px; font-size: 0.7rem; min-height:44px;">
+                            <i data-lucide="link" style="width: 12px;"></i> Web Link
+                        </button>
+                        <button class="btn icon-btn outline-btn flex-1" onclick="showIntakeModal('youtube')" style="padding: 8px 12px; font-size: 0.7rem; min-height:44px;">
+                            <i data-lucide="video" style="width: 12px;"></i> Video Link
+                        </button>
+                    </div>
+                    <input type="file" id="file-input" multiple class="hidden">
+                </div>
+
+                <!-- Launch Button -->
+                <div class="actions-row mt-4 no-print" style="margin-bottom: 80px;">
+                    <button id="btn-start-analysis" class="btn primary-btn flex-1" style="min-height: 48px;" disabled>
+                        <i data-lucide="shield-check"></i> Initialize Multi-Agent Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: EVIDENCE REPOSITORY -->
+        <!-- ========================================== -->
+        <div id="screen-evidence" class="screen">
+            <header>
+                <div class="logo">Active <span>Evidence</span></div>
+                <div class="selection-counter" id="selection-counter-evidence">Selected evidence sources: 0 of 10</div>
+            </header>
+            <div class="content no-print" style="margin-bottom: 80px;">
+                <!-- Empty State -->
+                <div id="empty-state" class="glass-card empty-state">
+                    <i data-lucide="folder-open" class="icon-lg"></i>
+                    <h3>Zero Evidence Ingested</h3>
+                    <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 6px; line-height: 1.4;">
+                        Your active repository is empty. Head to the Home tab to select publications or upload custom crop logs.
+                    </p>
+                </div>
+
+                <!-- Dynamic Active List -->
+                <div id="source-sections" class="source-sections hidden">
+                    <div id="files-section">
+                        <div class="section-label">Demo & Uploaded Files</div>
+                        <div id="files-list" class="source-list-elite"></div>
+                    </div>
+                    <div id="web-section" class="mt-4">
+                        <div class="section-label">Custom Web Links</div>
+                        <div id="web-list" class="source-list-elite"></div>
+                    </div>
+                    <div id="youtube-section" class="mt-4">
+                        <div class="section-label">Custom Video Links</div>
+                        <div id="youtube-list" class="source-list-elite"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: AGENTS TIMELINE -->
+        <!-- ========================================== -->
+        <div id="screen-flow" class="screen">
+            <header>
+                <h1>Agentic Synthesis</h1>
+                <div class="confidence-meter">
+                    <div class="meter-bg"><div id="system-confidence-bar" class="meter-fill" style="width: 0%"></div></div>
+                    <span id="confidence-val" class="val">0%</span>
+                </div>
+            </header>
+            <div class="content no-print" style="margin-bottom: 80px;">
+                <div style="font-size:0.65rem; text-transform:uppercase; font-weight:800; color:var(--text-dim); margin-bottom:4px; text-align:center;">
+                    Tap any agent below to audit its reasoning
+                </div>
+                
+                <!-- Stepper Progress workflow -->
+                <div class="workflow-visualizer" id="agent-timeline"></div>
+                
+                <!-- Expanded Transparent Audit Card -->
+                <div id="agent-detail-card" class="glass-card agent-detail hidden">
+                    <div class="detail-header">
+                        <div>
+                            <span id="detail-agent-name" style="font-weight:800; font-size:0.9rem;">Agent</span>
+                            <div id="agent-info-chip" style="font-size:0.6rem; color:var(--accent); font-weight:700; margin-top:2px;"></div>
+                        </div>
+                        <div class="badge" id="detail-status">Running</div>
+                    </div>
+                    <p id="detail-summary" class="detail-text" style="font-size:0.75rem; color:var(--text-main); margin-top:6px; line-height:1.4; border-bottom:1px solid var(--border); padding-bottom:8px;"></p>
+                    
+                    <div class="detail-io mt-2">
+                        <div class="io-box"><label>Input Bundle</label><div id="detail-input" style="font-size:0.7rem; color:var(--text-dim);"></div></div>
+                        <div class="io-box"><label>Actionable Output</label><div id="detail-output" style="font-size:0.7rem; color:var(--primary); font-weight:700;"></div></div>
+                    </div>
+                    
+                    <!-- Evidence trusted vs rejected -->
+                    <div style="display:grid; grid-template-columns:1fr; gap:8px; margin-top:10px; border-top:1px solid var(--border); padding-top:8px;">
+                        <div>
+                            <label style="font-size:0.6rem; font-weight:800; color:var(--primary); text-transform:uppercase; display:block; margin-bottom:2px;">Evidence Trusted</label>
+                            <div id="agent-evidence-trusted" style="font-size:0.65rem; color:var(--text-main);"></div>
+                        </div>
+                        <div style="margin-top:4px;">
+                            <label style="font-size:0.6rem; font-weight:800; color:var(--danger); text-transform:uppercase; display:block; margin-bottom:2px;">Evidence Down-Ranked / Rejected</label>
+                            <div id="agent-evidence-rejected" style="font-size:0.65rem; color:var(--text-dim);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Agent Memory / Context Trace Panel -->
+                    <div class="agent-memory-panel mt-3">
+                        <div class="memory-title"><i data-lucide="cpu" style="width:12px; height:12px; display:inline-block; vertical-align:middle;"></i> Agent Memory & Trace</div>
+                        <div class="memory-box">
+                            <div class="trace-item"><strong>Tool Invocation:</strong> <code id="trace-tools">None</code></div>
+                            <div class="trace-item"><strong>Inferred Logic:</strong> <span id="trace-inference">Pending...</span></div>
+                            <div class="trace-item"><strong>Status:</strong> <span id="trace-status" class="badge">Idle</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unbreakable Approval Sheet (Appears after timeline ends) -->
+                <div id="approval-box" class="glass-card hidden mt-4" style="border-top: 4px solid var(--warning); padding:14px;">
+                    <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--warning); margin-bottom: 6px;">
+                        ⚠️ human in the loop approval required
+                    </div>
+                    <div class="glass-card plan-summary mt-2" style="background:rgba(0,0,0,0.1); padding:10px; border-radius:10px;">
+                        <h4 style="font-size:0.75rem; font-weight:700;">Proposed Action Plan Summary</h4>
+                        <div id="plan-list-review" class="action-chain mt-2" style="font-size:0.7rem;"></div>
+                    </div>
+                    <div class="actions-row mt-3" style="display:flex; gap:8px;">
+                        <button class="btn outline-btn flex-1" onclick="switchTab('home')" style="padding: 10px; font-size:0.75rem;">Reject Plan</button>
+                        <button id="btn-approve-execute" class="btn primary-btn flex-1" style="padding: 10px; font-size:0.75rem;">Approve & Deploy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 4: OUTCOMES REPORT -->
+        <!-- ========================================== -->
+        <div id="screen-outcome" class="screen">
+            <header class="no-print">
+                <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                    <h1 style="font-size:1.1rem;">Command Dashboard</h1>
+                    <!-- View Toggles -->
+                    <div class="view-toggle">
+                        <button id="btn-view-manager" class="toggle-btn active">Manager</button>
+                        <button id="btn-view-farmer" class="toggle-btn">Farmer</button>
+                    </div>
+                </div>
+                <div class="badge-row mt-2" id="dashboard-badges"></div>
+            </header>
+            <div class="content print-area" style="margin-bottom: 80px;">
+                <!-- Staging / Connectivity Alert Banner -->
+                <div id="offline-banner" class="offline-banner hidden">
+                    <i data-lucide="wifi-off"></i> Cached Advisory Mode Active
+                </div>
+
+                <!-- Location & Weather Card (Shared) -->
+                <div class="dashboard-section">
+                    <h3 class="section-title">Affected Area & Location Context</h3>
+                    <div class="map-weather-grid">
+                        <div class="glass-card map-card">
+                            <iframe id="hazro-map" width="100%" height="130" frameborder="0" style="border:0; border-radius:12px;" 
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13264.453913054176!2d72.4839846871582!3d33.91234710000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38df13a48e6f1f33%3A0xe96c4293f773449c!2sHazro%2C%20Attock%2C%20Punjab%2C%20Pakistan!5e0!3m2!1sen!2s!4v1715762000000!5m2!1sen!2s"></iframe>
+                        </div>
+                        <div class="glass-card weather-card">
+                            <div class="weather-header" id="weather-source-header"><i data-lucide="cloud-sun"></i> Live Weather</div>
+                            <div class="weather-stats">
+                                <div class="stat"><label>Temp</label><span id="w-temp">32°C</span></div>
+                                <div class="stat"><label>Hum</label><span id="w-hum">84%</span></div>
+                            </div>
+                            <div id="w-ts" class="weather-ts">Fetched: Today, 14:30</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- FARMER VIEW CONTAINER -->
+                <!-- ========================================== -->
+                <div class="view-farmer-only hidden" id="farmer-view-container">
+                    <div class="glass-card farmer-severity-card">
+                        <div class="severity-title">فصل کی صورتحال (Outbreak Status)</div>
+                        <div class="severity-badge-large" id="farmer-severity-badge">HIGH RISK</div>
+                        <p class="severity-desc" id="farmer-severity-desc">High risk of fungal outbreak. Actions requested immediately.</p>
+                    </div>
+                    
+                    <div class="dashboard-section mt-3">
+                        <h3 class="section-title">فوری کسان اقدامات (Recommended Actions)</h3>
+                        <div id="farmer-actions-list" class="farmer-action-grid"></div>
+                    </div>
+
+                    <!-- Urdu Summary advisory card -->
+                    <div class="glass-card summary-card urdu mt-3">
+                        <label>Farmer Advisory (Urdu) — کسان ایڈوائزری</label>
+                        <p id="sum-urdu" dir="rtl"></p>
+                        <div class="no-print mt-4">
+                            <button class="btn primary-btn w-full" id="btn-whatsapp" style="background:#25d366; min-height:48px;">
+                                <i data-lucide="message-circle"></i> Send Urdu Advisory on WhatsApp
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- MANAGER VIEW CONTAINER -->
+                <!-- ========================================== -->
+                <div class="view-manager-only" id="manager-view-container" style="display:flex; flex-direction:column; gap:16px;">
+                    <!-- Expected Impact Metrics Panel -->
+                    <div class="dashboard-section">
+                        <h3 class="section-title">Expected Impact Estimates</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <label>Loss w/o Action</label>
+                                <span id="m-loss-no-action" class="metric-val text-danger">75%</span>
+                            </div>
+                            <div class="metric-card">
+                                <label>Loss w/ Action</label>
+                                <span id="m-loss-action" class="metric-val text-success">12%</span>
+                            </div>
+                            <div class="metric-card">
+                                <label>Est. Time Saved</label>
+                                <span id="m-time-saved" class="metric-val text-info">3.5 Days</span>
+                            </div>
+                            <div class="metric-card">
+                                <label>Coverage Gap</label>
+                                <span id="m-coverage-gap" class="metric-val text-warning">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Executive Summary -->
+                    <div class="glass-card summary-card executive">
+                        <label>Executive Summary</label>
+                        <p id="sum-exec" style="font-size:0.75rem; line-height:1.5; color:var(--text-main);"></p>
+                    </div>
+
+                    <!-- Context-Aware Crop Care Tips (Dynamic Section) -->
+                    <div class="dashboard-section" id="crop-care-section">
+                        <h3 class="section-title">🌱 Crop Care Guidelines</h3>
+                        <div class="glass-card" style="border-left: 4px solid var(--primary); padding: 14px; border-radius: 12px; background: rgba(16, 185, 129, 0.02);">
+                            <div id="crop-care-tips" style="display:flex; flex-direction:column; gap:8px;">
+                                <!-- Dynamic crop guidelines will render here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Final Action Plan Detail -->
+                    <div class="dashboard-section">
+                        <h3 class="section-title">Final Action Plan</h3>
+                        <div id="action-plan-detail" class="action-grid"></div>
+                    </div>
+
+                    <!-- Contradiction & Rejected Evidence -->
+                    <div class="dashboard-grid-2">
+                        <div class="glass-card logic-card">
+                            <div class="header" style="color:var(--warning);"><i data-lucide="git-branch"></i> Contradiction Summary</div>
+                            <p id="contradiction-summary" class="small-text"></p>
+                        </div>
+                        <div class="glass-card logic-card danger">
+                            <div class="header"><i data-lucide="filter-x"></i> Rejected / Down-ranked</div>
+                            <div id="rejected-evidence-list" class="small-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- Evidence Context Summaries -->
+                    <div class="dashboard-section">
+                        <h3 class="section-title">Evidence Context Summaries</h3>
+                        <div id="evidence-summaries" class="summary-list"></div>
+                    </div>
+
+                    <!-- Operational Summary -->
+                    <div class="glass-card summary-card">
+                        <label>Manager Operational Summary</label>
+                        <p id="sum-manager" style="font-size:0.75rem; line-height:1.5; color:var(--text-main);"></p>
+                    </div>
+                </div>
+
+                <div class="glass-card trace-section no-screen" style="margin-top:16px;">
+                    <h3>Evidence sources used in this analysis</h3>
+                    <div id="final-source-list" class="file-tags"></div>
+                </div>
+
+                <!-- Global Actions -->
+                <div class="actions-row mt-4 no-print" style="margin-bottom: 80px; display:flex; gap:8px;">
+                    <button id="btn-pdf" class="btn primary-btn flex-1" style="min-height: 48px;"><i data-lucide="file-text"></i> Download PDF Report</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 5: CONFIG CENTER -->
+        <!-- ========================================== -->
+        <div id="screen-settings" class="screen">
+            <header>
+                <div class="logo">Config <span>Center</span></div>
+                <div class="selection-counter">KisanAI System parameters</div>
+            </header>
+            <div class="content no-print" style="margin-bottom: 80px;">
+                <!-- AI Engine Configuration -->
+                <div class="glass-card" style="padding: 16px; border-radius: 16px; border-left: 4px solid var(--primary);">
+                    <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="bot" style="width: 14px; color: var(--primary);"></i> AI Engine
+                    </h3>
+                    <p style="font-size: 0.65rem; color: var(--text-dim); line-height: 1.4; margin-bottom: 12px;">
+                        Connect a free LLM to enable real agentic reasoning. No credit card needed.
+                    </p>
+
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 0.65rem; font-weight: 700; color: var(--text-dim); display: block; margin-bottom: 4px;">Provider</label>
+                        <select id="llm-provider" style="width: 100%; padding: 10px; font-size: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: white; outline: none; font-family: var(--font);">
+                            <option value="gemini">Google Gemini (gemini-2.5-flash)</option>
+                            <option value="groq">Groq (llama-3.3-70b-versatile)</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 0.65rem; font-weight: 700; color: var(--text-dim); display: block; margin-bottom: 4px;">API Key</label>
+                        <input type="password" id="llm-api-key" placeholder="Paste your free API key here" style="width: 100%; padding: 10px; font-size: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.3); color: white; outline: none; box-sizing: border-box;">
+                    </div>
+
+                    <button class="btn primary-btn w-full" id="btn-save-llm" style="min-height: 44px; font-size: 0.75rem; margin-bottom: 8px;">
+                        <i data-lucide="save"></i> Save AI Settings
+                    </button>
+
+                    <div id="llm-status" style="font-size: 0.65rem; font-weight: 700; padding: 8px; border-radius: 8px; text-align: center; margin-bottom: 8px; background: rgba(239,68,68,0.08); color: var(--danger);">
+                        ❌ No API key — running in Demo Mode
+                    </div>
+
+                    <p style="font-size: 0.6rem; color: var(--text-dim); line-height: 1.4; text-align: center;">
+                        Get free key: <a href="https://aistudio.google.com/apikey" target="_blank" style="color: var(--primary); text-decoration: underline;">Gemini</a> &nbsp;|&nbsp; <a href="https://console.groq.com/keys" target="_blank" style="color: var(--primary); text-decoration: underline;">Groq</a>
+                    </p>
+                </div>
+
+                <div class="glass-card mt-3" style="padding: 16px; border-radius: 16px;">
+                    <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="wifi-off" style="width: 14px; color: var(--warning);"></i> Network settings
+                    </h3>
+                    
+                    <div class="offline-toggle-container" style="border-top: none; padding-top: 0;">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-offline">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label" style="font-size:0.75rem;">Force Offline / Cached Mode</span>
+                    </div>
+                    <p style="font-size: 0.65rem; color: var(--text-dim); line-height: 1.4; margin-top: 6px;">
+                        Skip real-world API connectivity. Simulate poor coverage fallbacks, pulling all advisory matrices from agricultural cached buffers.
+                    </p>
+                </div>
+
+                <!-- Technical Workspace Stats -->
+                <div class="glass-card mt-3" style="padding: 16px; border-radius: 16px;">
+                    <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="activity" style="width: 14px; color: var(--accent);"></i> Orchestration Stats
+                    </h3>
+                    <div style="display:flex; flex-direction:column; gap:8px; font-size:0.7rem;">
+                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:6px;">
+                            <span style="color:var(--text-dim);">Active Crop Context:</span>
+                            <span id="settings-crop-context" style="color:var(--primary); font-weight:700;">N/A</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:6px;">
+                            <span style="color:var(--text-dim);">API Delay Speed:</span>
+                            <span style="color:var(--text-main);">1200ms (Fetch & Ingest)</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span style="color:var(--text-dim);">System Buffer Size:</span>
+                            <span style="color:var(--text-main);">12 KB / Offline Safe</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clean Reset center -->
+                <div class="glass-card mt-3" style="padding: 16px; border-radius: 16px; border-color: rgba(239, 68, 68, 0.2);">
+                    <h3 style="font-size: 0.85rem; font-weight: 800; color: var(--danger); margin-bottom: 6px;">
+                        Reset Workspace
+                    </h3>
+                    <p style="font-size: 0.65rem; color: var(--text-dim); line-height: 1.4; margin-bottom: 12px;">
+                        Purge all ingested files, links, and public publication selections to start a completely fresh crop audit run.
+                    </p>
+                    <button class="btn outline-btn w-full" onclick="resetAppWorkspace()" style="color:var(--danger); border-color:rgba(239,68,68,0.3); min-height:44px;">
+                        <i data-lucide="trash-2"></i> Reset Evidence Pool
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- MODALS & PREVIEWS -->
+        <!-- ========================================== -->
+
+        <!-- MODAL: Custom Link Ingestion -->
+        <div id="modal-intake" class="modal hidden">
+            <div class="modal-content glass-card" style="max-width:320px; width:90%;">
+                <div class="modal-header">
+                    <h3 id="intake-title" style="font-size:0.85rem; font-weight:700;">Add Evidence</h3>
+                    <button class="close-btn" onclick="hideIntakeModal()" style="font-size:1.4rem; border:none; background:none; color:var(--text-dim); cursor:pointer;">&times;</button>
+                </div>
+                <div class="intake-body mt-2">
+                    <input type="text" id="intake-web-url" class="glass-input hidden" placeholder="Paste article/report URL" style="width:100%; padding:10px; font-size:0.75rem; border-radius:8px; border:1px solid var(--border); background:rgba(0,0,0,0.2); color:white; outline:none;">
+                    <input type="text" id="intake-yt-url" class="glass-input hidden" placeholder="Paste YouTube video URL" style="width:100%; padding:10px; font-size:0.75rem; border-radius:8px; border:1px solid var(--border); background:rgba(0,0,0,0.2); color:white; outline:none;">
+                    <button id="btn-ingest" class="btn primary-btn mt-3 w-full" style="padding:10px; font-size:0.75rem; min-height:40px;">Fetch & Ingest</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: Evidence Preview Modal -->
+        <div id="modal-preview" class="modal hidden" style="z-index:1100;">
+            <div class="modal-content glass-card" style="max-width:380px; width:92%; max-height:80vh; display:flex; flex-direction:column; padding:0; overflow:hidden; border-radius:24px;">
+                <!-- Header -->
+                <div class="modal-header" style="padding:14px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+                    <div style="min-width:0; flex:1; padding-right:8px;">
+                        <h3 id="preview-title" style="font-size:0.85rem; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px;">Document Preview</h3>
+                        <div id="preview-badges" style="display:flex; gap:4px; align-items:center; flex-wrap:wrap;"></div>
+                    </div>
+                    <button class="close-btn" onclick="hidePreviewModal()" style="font-size:1.5rem; background:none; border:none; color:var(--text-dim); cursor:pointer; line-height:1;">&times;</button>
+                </div>
+                <!-- Body -->
+                <div class="preview-body" id="preview-body" style="flex:1; padding:16px; overflow-y:auto; font-size:0.75rem; line-height:1.5; color:var(--text-main);"></div>
+                <!-- Footer -->
+                <div class="modal-footer" style="padding:10px 16px; border-top:1px solid var(--border); display:flex; gap:6px; justify-content:flex-end; background:rgba(0,0,0,0.3);">
+                    <button id="btn-preview-new-tab" class="btn outline-btn" style="padding:6px 12px; font-size:0.65rem; min-height:32px;"><i data-lucide="external-link" style="width:10px; height:10px;"></i> Tab</button>
+                    <button id="btn-preview-select" class="btn primary-btn" style="padding:6px 12px; font-size:0.65rem; min-height:32px;"><i data-lucide="check" style="width:10px; height:10px;"></i> Select</button>
+                    <button class="btn outline-btn" onclick="hidePreviewModal()" style="padding:6px 12px; font-size:0.65rem; min-height:32px;">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- BOTTOM NAVIGATION BAR (Mobile Native Sticky) -->
+        <!-- ========================================== -->
+        <nav class="mobile-nav no-print">
+            <button class="nav-item active" onclick="switchTab('home')" id="tab-home">
+                <i data-lucide="home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('evidence')" id="tab-evidence">
+                <div style="position:relative; display:inline-block;">
+                    <i data-lucide="folder-open"></i>
+                    <span class="nav-badge hidden" id="nav-evidence-badge">0</span>
+                </div>
+                <span>Evidence</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('flow')" id="tab-flow">
+                <i data-lucide="cpu"></i>
+                <span>Agents</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('outcome')" id="tab-outcome">
+                <i data-lucide="file-text"></i>
+                <span>Report</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('settings')" id="tab-settings">
+                <i data-lucide="settings"></i>
+                <span>Settings</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

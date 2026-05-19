@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Definitions for Gradients -->
+  <defs>
+    <radialGradient id="bg-grad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#07090e"/>
+    </radialGradient>
+    <linearGradient id="primary-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <linearGradient id="gold-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Layer -->
+  <rect width="512" height="512" rx="128" fill="url(#bg-grad)"/>
+
+  <!-- Outer Glowing Ring -->
+  <circle cx="256" cy="256" r="210" fill="none" stroke="url(#primary-grad)" stroke-width="8" opacity="0.15" filter="url(#glow)"/>
+  <circle cx="256" cy="256" r="190" fill="none" stroke="url(#gold-grad)" stroke-width="4" opacity="0.3" stroke-dasharray="8 6"/>
+
+  <!-- Glowing Emblem Circle -->
+  <circle cx="256" cy="256" r="140" fill="#0f172a" stroke="rgba(255,255,255,0.03)" stroke-width="2"/>
+
+  <!-- Crop Sprout Graphics -->
+  <g transform="translate(256, 320) scale(1.1)">
+    <!-- Stem -->
+    <path d="M0,0 C-10,-40 -10,-80 0,-110 C5,-125 15,-135 15,-135 C15,-135 5,-120 -2,-105 C-12,-80 -10,-40 0,0 Z" fill="url(#primary-grad)"/>
+    
+    <!-- Left Green Sprout Leaf -->
+    <path d="M-4,-60 C-35,-80 -55,-60 -50,-35 C-45,-15 -20,-10 -2,-45 Z" fill="url(#primary-grad)"/>
+    
+    <!-- Right Gold Wheat Leaf -->
+    <path d="M2,-85 C35,-105 50,-80 42,-55 C35,-35 15,-30 -1,-70 Z" fill="url(#gold-grad)"/>
+
+    <!-- Sparkles -->
+    <circle cx="-35" cy="-110" r="6" fill="#f59e0b" filter="url(#glow)"/>
+    <circle cx="45" cy="-120" r="4" fill="#10b981" filter="url(#glow)"/>
+    <path d="M-15,-145 L-12,-138 L-5,-138 L-10,-134 L-8,-127 L-15,-131 L-22,-127 L-20,-134 L-25,-138 L-18,-138 Z" fill="#ffffff" opacity="0.8"/>
+  </g>
+</svg>
